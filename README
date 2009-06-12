@@ -1,4 +1,4 @@
-Implementation for travelling salesman problem (http://en.wikipedia.org/wiki/Travelling_salesman_problem) in python.
+Implementation for travelling salesman problem 
+(http://en.wikipedia.org/wiki/Travelling_salesman_problem) in python.
 
 Basically I just wanted to try out the Ant colony optimization algorithm.
-
