@@ -38,8 +38,8 @@ class Salesman:
         self.cities = cities
 
     def all_paths(self, cities):
-        return self.all_paths_christoph(cities)
-        #return self.all_paths_itertools(cities)
+        #return self.all_paths_christoph(cities)
+        return self.all_paths_itertools(cities)
         
     def all_paths_christoph(self, cities):
         return Permutation().permutations(cities)
@@ -146,13 +146,13 @@ class AntHillSalesman(Salesman):
     def find_min_distance(self):
         available_edges = self.all_edges()
 
+        # current best path found so far, there may be many paths with same cost
         best_paths = []
+        best_distance = None
+        
         for iteration in xrange(self.iterations):
-            print "Iteration:" , iteration
             paths = []
             
-            best_distance = None
-            best_paths = []
             for ant_count in xrange(self.ant_count):
                 path = self.ant_run()
                 paths.append(path)
@@ -165,21 +165,16 @@ class AntHillSalesman(Salesman):
                 elif distance == best_distance:
                     best_paths.append(path)
    
-            print "best distance:", best_distance 
+            print "Iteration:", iteration, "best distance:", best_distance 
             self.decay_pheromones()
             for path in paths:
-                pass
                 self.leave_pheromones(path)
-        
-        print "Best paths for last iteration"
-        for path in best_paths:
-            print path, self.path_distance(path)
-        return []
+        return best_paths
         
     def ant_run(self):
         available_cities = cities[:]
         selected_edges = []
-        # TODO how to select first city?
+        # select starting city randomly
         current_city = random.sample(available_cities, 1)[0]
         available_cities.remove(current_city)
         
@@ -237,9 +232,6 @@ class AntHillSalesman(Salesman):
             prob += self.compute_edge_value(edge)
         return prob
 
-    def compute_prob(self, edge, all_edges_value):
-        pass
-
     def leave_pheromones(self, path):
         delta = 1.0 / self.path_distance(path)
         
@@ -283,14 +275,14 @@ if __name__ == '__main__':
     import time
     random.seed(97531)
 
-    city_count = 200
+    city_count = 150
     cities = range(city_count)
     distance_matrix = create_cities(city_count, 15)
     
     salesman = AntHillSalesman(distance_matrix, cities, ant_count=10, iterations=200)
 
     start = time.time()
-    all_paths = salesman.all_paths(cities)
+    # all_paths = salesman.all_paths(cities)
     paths = salesman.find_min_distance()
     end = time.time()
     
