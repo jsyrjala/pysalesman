@@ -1,35 +1,12 @@
-# http://en.wikipedia.org/wiki/Ant_colony_optimization
- 
+# -*- coding: utf-8 -*-
+# Juha Syrjälä (2009, 2010)
+#
 # Travelling salesman problem
- 
-# distance matrix between cities
-# matrix is symmetric and diagonal is zeros
+# http://en.wikipedia.org/wiki/Ant_colony_optimization
+# 
 
 import random
 import itertools
-from operator import mul, add
-
-class Permutation:
-    def fac(self, x): 
-        return (1 if x==0 else x * self.fac(x-1))
-
-    def permutations(self, plist):
-        counter=0
-        lenplist = len(plist)
-        limit = self.fac(lenplist) / 2
-        if len(plist) <=1:
-            yield plist
-        else:
-            for perm in self.permutations(plist[1:]):
-                for i in xrange(len(perm)+1):
-                    if len(perm[:i] + plist[0:1] + perm[i:]) == lenplist:
-                            if counter == limit:
-                                 raise StopIteration
-                            else:
-                                 counter = counter + 1
-                    yield perm[:i] + plist[0:1] + perm[i:]
-
-
 
 class Salesman:
 
@@ -38,34 +15,10 @@ class Salesman:
         self.cities = cities
 
     def all_paths(self, cities):
-        #return self.all_paths_christoph(cities)
-        return self.all_paths_itertools(cities)
+        for path in itertools.permutations(cities):
+            if path[0] < path[-1]:
+                yield path
         
-    def all_paths_christoph(self, cities):
-        return Permutation().permutations(cities)
-        
-    def all_paths_itertools(self, cities):
-        """
-        Returns all permutations of list
-        it is enough to return ceil(len(permutations)) elements
-        """
-        gen = itertools.permutations(cities)
-        
-        return gen
-        
-
-    def all_paths_old(self, str):
-        """
-        Returns all permutations of list or tuple.
-        Actually only half of those are interesting
-        """
-        if len(str) <=1:
-            yield str
-        else:
-            for perm in self.all_paths(str[1:]):
-                for i in xrange(len(perm)+1):
-                    yield perm[:i] + str[0:1] + perm[i:]
-
     def path_edges(self, path):
         return zip(path, path[1::])
 
@@ -106,11 +59,14 @@ class Salesman:
 
 class BruteForceSalesman(Salesman):
     def find_min_distance(self):
+        print "BruteForceSalesman"
+
         all_paths = self.all_paths(self.cities)
         min_distance= None
         min_paths = []
         path_count = 0
         for path in all_paths:
+            print(path_count, path)
             path_count += 1
             dist = self.path_distance(path)
             if min_distance == None or dist < min_distance:
@@ -123,6 +79,7 @@ class BruteForceSalesman(Salesman):
 
 class AntHillSalesman(Salesman):
     def __init__(self, matrix, cities, ant_count, iterations = 100, pheromone_control=0.1, distance_control=0.1, initial_pheromone=0.1):
+        print "AntHillSalesman"
         self.matrix = matrix
         self.cities = cities
         
@@ -162,10 +119,10 @@ class AntHillSalesman(Salesman):
                     best_paths = [path]
                     best_distance = distance
                     
-                elif distance == best_distance:
+                elif distance == best_distance and not path in best_paths:
                     best_paths.append(path)
    
-            print "Iteration:", iteration, "best distance:", best_distance 
+            #print "Iteration:", iteration, "best distance:", best_distance 
             self.decay_pheromones()
             for path in paths:
                 self.leave_pheromones(path)
@@ -275,17 +232,20 @@ if __name__ == '__main__':
     import time
     random.seed(97531)
 
-    city_count = 150
+    city_count = 61
     cities = range(city_count)
     distance_matrix = create_cities(city_count, 15)
     
+    print "Solving travelling salesman problem for", city_count, "cities."
     salesman = AntHillSalesman(distance_matrix, cities, ant_count=10, iterations=200)
+
+    #salesman = BruteForceSalesman(distance_matrix, cities)
 
     start = time.time()
     # all_paths = salesman.all_paths(cities)
     paths = salesman.find_min_distance()
     end = time.time()
     
-    print "minimal paths, bruteforced, took " + str(end - start) + " sec"
+    print "minimal paths, took " + str(end - start) + " sec"
     for path in paths:
         salesman.display_path(path)
