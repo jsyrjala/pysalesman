@@ -23,17 +23,9 @@ class Salesman:
         return zip(path, path[1::])
 
     def all_edges(self):
-        # TODO make this a generator
-        edges = itertools.combinations(self.cities, 2)
-
-        reversed_cities = self.cities[:]
-        reversed_cities.reverse()
-        
-        reverse_edges = itertools.combinations(reversed_cities, 2)
-        
-        all_edges = list(edges)
-        all_edges.extend( list(reverse_edges) )
-        return all_edges
+        for edge in itertools.combinations(self.cities, 2):
+            yield edge
+            yield (edge[1], edge[0])
 
     def edge_list_to_path(self, edge_list):
         path = []
