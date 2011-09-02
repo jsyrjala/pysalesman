@@ -70,7 +70,7 @@ class BruteForceSalesman(Salesman):
         return min_paths
 
 class AntHillSalesman(Salesman):
-    def __init__(self, matrix, cities, ant_count, iterations = 100, pheromone_control=0.1, distance_control=0.1, initial_pheromone=0.1):
+    def __init__(self, matrix, cities, ant_count, iterations = 100, pheromone_control=0.01, distance_control=0.01, initial_pheromone=0.001):
         print "AntHillSalesman"
         self.matrix = matrix
         self.cities = cities
